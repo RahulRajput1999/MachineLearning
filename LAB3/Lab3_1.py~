@@ -1,0 +1,44 @@
+from sklearn import preprocessing
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import export_graphviz
+from subprocess import call
+import matplotlib.pyplot as plt
+
+Outlook = ['Rainy', 'Rainy', 'Overcast', 'Sunny', 'Sunny', 'Sunny', 'Overcast', 'Rainy', 'Rainy', 'Sunny', 'Rainy','Overcast', 'Overcast', 'Sunny']
+Temperature = ['Hot', 'Hot', 'Hot', 'Mild', 'Cool', 'Cool', 'Cool', 'Mild', 'Cool', 'Mild', 'Mild', 'Mild', 'Hot', 'Mild']
+Humidity = ['High', 'High', 'High', 'High', 'Normal', 'Normal', 'Normal', 'High', 'Normal', 'Normal', 'Normal', 'High', 'Normal', 'High']
+Wind = [False, True, False, False, False, True, True, False, False, False, True, True, False, True]
+Play = [ 'No', 'No', 'Yes', 'Yes', 'Yes', 'No', 'Yes', 'No', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'No']
+le=preprocessing.LabelEncoder()
+outlook=le.fit_transform(Outlook)
+print("Outlook: ",dict(zip(le.classes_,le.transform(le.classes_))))
+temperature=le.fit_transform(Temperature)
+print("Temperature: ",dict(zip(le.classes_,le.transform(le.classes_))))
+humidity=le.fit_transform(Humidity)
+print("Humidity: ",dict(zip(le.classes_,le.transform(le.classes_))))
+wind=le.fit_transform(Wind)
+print("Wind: ",dict(zip(le.classes_,le.transform(le.classes_))))
+play=le.fit_transform(Play)
+print("Play: ",dict(zip(le.classes_,le.transform(le.classes_))))
+features=tuple(zip(outlook,temperature,humidity,wind))
+print(features)
+clf_entropy = DecisionTreeClassifier(criterion = "entropy")
+clf_entropy.fit(features,play)
+DecisionTreeClassifier(class_weight=None, criterion='entropy', max_depth=None,
+max_features=None, max_leaf_nodes=None,
+min_impurity_decrease=0.0, min_impurity_split=None,
+min_samples_leaf=1, min_samples_split=2,
+min_weight_fraction_leaf=0.0, presort=False,
+random_state=None, splitter='best')
+predicted= clf_entropy.predict([[1,2,1,0],[2,0,0,1]])
+print("Predicted Play Values:", predicted)
+export_graphviz(clf_entropy,out_file='tree_entropy.dot',
+feature_names=['outlook','temperature','humidity','wind'],
+class_names=['play_no','play_yes'],
+filled=True)
+call(['dot', '-Tpng', 'tree_entropy.dot', '-o', 'tree_entropy.png', '-Gdpi=600'])
+plt.figure(figsize = (14, 18))
+plt.imshow(plt.imread('tree_entropy.png'))
+plt.axis('off');
+plt.show();
+

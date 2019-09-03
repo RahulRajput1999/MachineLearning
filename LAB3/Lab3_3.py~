@@ -1,0 +1,39 @@
+from sklearn import preprocessing
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import export_graphviz
+from subprocess import call
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+from sklearn.metrics import confusion_matrix
+
+data = pd.read_csv("./Dataset/zoo.csv")
+data=data.drop('animal_name',axis=1)
+features_n=data.columns.values[:-1]
+types_n=['t1','t2','t3','t4','t5','t6','t7']
+features=data.iloc[:,:-1]
+types=data.iloc[:,-1]
+data_train, data_test, target_train, target_test = train_test_split(features,types, test_size = 0.30, random_state = 10)
+clf_entropy = DecisionTreeClassifier(criterion = "entropy")
+clf_entropy.fit(data_train,target_train)
+DecisionTreeClassifier(class_weight=None, criterion='entropy', max_depth=None,
+max_features=None, max_leaf_nodes=None,
+min_impurity_decrease=0.0, min_impurity_split=None,
+min_samples_leaf=1, min_samples_split=2,
+min_weight_fraction_leaf=0.0, presort=False,
+random_state=None, splitter='best')
+predicted= clf_entropy.predict(data_test)
+print("Predicted Play Values:", predicted)
+print("Accuracy:",metrics.accuracy_score(target_test, predicted))
+print(confusion_matrix(target_test, predicted))
+export_graphviz(clf_entropy,out_file='tree_entropy_zoo.dot',
+feature_names=features_n,
+class_names=types_n,
+filled=True)
+call(['dot', '-Tpng', 'tree_entropy_zoo.dot', '-o', 'tree_entropy_zoo.png', '-Gdpi=600'])
+plt.figure(figsize = (14, 18))
+plt.imshow(plt.imread('tree_entropy_zoo.png'))
+plt.axis('off');
+plt.show();
